@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { RiskService } from './risk/risk.service';
 
 @Injectable()
 export class AppService {
   private invoices = [];
+
+  constructor(private readonly riskService: RiskService) {}
 
   // GET: Fetch all invoices
   getAllInvoices() {
@@ -11,15 +14,17 @@ export class AppService {
 
   // POST: Create Invoice & Calculate Risk
   processNewInvoice(data: any) {
-    // Mock Risk Logic: Random Score 50-99
-    const riskScore = Math.floor(Math.random() * 50) + 50; 
+    const amount = Number(data.amount) || 0;
+    const date = data.date ? new Date(data.date) : new Date();
+
+    const riskScore = this.riskService.calculateScore(amount, date);
     
     const newInvoice = {
       id: Date.now().toString(),
       ...data,
       riskScore: riskScore,
       status: riskScore > 70 ? 'Approved' : 'High Risk',
-      timestamp: new Date().toISOString()
+      timestamp: date.toISOString()
     };
 
     this.invoices.push(newInvoice);
