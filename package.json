@@ -7,7 +7,8 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "test": "jest",
-    "test:risk": "ts-node src/test-risk.ts"
+    "test:risk": "ts-node src/test-risk.ts",
+    "test:cors": "ts-node src/test-cors.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.22",

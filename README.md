@@ -27,4 +27,22 @@ services:
     image: postgres:15
     environment:
       POSTGRES_DB: tradeflow
+      POSTGRES_PASSWORD: password
+    ports: ["5432:5432"]
+```
+
+## 🔒 CORS Configuration
+
+Cross-Origin Resource Sharing (CORS) is enabled to allow secure communication between the frontend and backend.
+
+- **Allowed Origins:**
+  - `http://localhost:3000` (Local Development)
+  - `https://tradeflow-web.vercel.app` (Production)
+- **Allowed Methods:** `GET`, `POST`, `PUT`, `PATCH`
+- **Credentials:** Allowed (`true`)
+
+To verify the CORS configuration, run:
+```bash
+npm run test:cors
+```
  
