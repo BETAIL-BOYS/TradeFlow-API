@@ -15,7 +15,12 @@ export const databaseProviders = [
         synchronize: process.env.NODE_ENV === 'development',
       });
 
-      return dataSource.initialize();
+      try {
+        return await dataSource.initialize();
+      } catch (error) {
+        console.warn('Database connection failed - continuing without DB connection');
+        return dataSource;
+      }
     },
   },
 ];
