@@ -27,4 +27,27 @@ services:
     image: postgres:15
     environment:
       POSTGRES_DB: tradeflow
- 
+```
+
+## 🔒 Security & CORS
+
+The API is configured with strict Cross-Origin Resource Sharing (CORS) policies to ensure secure communication:
+
+- **Allowed Origins**:
+  - `http://localhost:3000` (Local Development)
+  - `https://tradeflow-web.vercel.app` (Production)
+- **Allowed Methods**: `GET`, `POST`, `PUT`, `PATCH`
+
+### Verifying CORS
+To verify the CORS configuration, ensure dependencies are installed and the server is running, then execute the test script:
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Start the server
+npm run start
+
+# 3. Run the CORS verification script (in a new terminal)
+node test-cors.js
+```
