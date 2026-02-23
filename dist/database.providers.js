@@ -14,10 +14,13 @@ exports.databaseProviders = [
                 password: process.env.DB_PASSWORD || 'password',
                 database: process.env.DB_DATABASE || 'tradeflow',
                 entities: [`${__dirname}/**/*.entity{.ts,.js}`],
-                synchronize: process.env.NODE_ENV === 'development',
+                migrations: [`${__dirname}/migrations/*.ts`],
+                synchronize: false,
             });
             try {
-                return await dataSource.initialize();
+                const connection = await dataSource.initialize();
+                console.log('Database connected successfully');
+                return connection;
             }
             catch (error) {
                 console.warn('Database connection failed - continuing without DB connection');
