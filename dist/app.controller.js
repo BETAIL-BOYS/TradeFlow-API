@@ -15,6 +15,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppController = void 0;
 const common_1 = require("@nestjs/common");
 const app_service_1 = require("./app.service");
+const swagger_1 = require("@nestjs/swagger");
+const create_invoice_dto_1 = require("./invoices/dto/create-invoice.dto");
+const invoice_dto_1 = require("./invoices/dto/invoice.dto");
 let AppController = class AppController {
     constructor(appService) {
         this.appService = appService;
@@ -22,25 +25,40 @@ let AppController = class AppController {
     getInvoices() {
         return this.appService.getAllInvoices();
     }
-    createInvoice(body) {
-        return this.appService.processNewInvoice(body);
+    createInvoice(createInvoiceDto) {
+        return this.appService.processNewInvoice(createInvoiceDto);
     }
 };
 exports.AppController = AppController;
 __decorate([
     (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Retrieve all invoices', description: 'Returns a list of all processed invoices' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'List of invoices retrieved successfully.',
+        type: [invoice_dto_1.InvoiceDto]
+    }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Array)
 ], AppController.prototype, "getInvoices", null);
 __decorate([
     (0, common_1.Post)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Create a new invoice', description: 'Submits a new invoice for risk assessment and processing' }),
+    (0, swagger_1.ApiBody)({ type: create_invoice_dto_1.CreateInvoiceDto, description: 'Invoice details' }),
+    (0, swagger_1.ApiResponse)({
+        status: 201,
+        description: 'Invoice created and processed successfully.',
+        type: invoice_dto_1.InvoiceDto
+    }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Invalid input data.' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [create_invoice_dto_1.CreateInvoiceDto]),
+    __metadata("design:returntype", invoice_dto_1.InvoiceDto)
 ], AppController.prototype, "createInvoice", null);
 exports.AppController = AppController = __decorate([
+    (0, swagger_1.ApiTags)('Invoices'),
     (0, common_1.Controller)('invoices'),
     __metadata("design:paramtypes", [app_service_1.AppService])
 ], AppController);
