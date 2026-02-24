@@ -7,7 +7,11 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "test": "jest",
-    "test:risk": "ts-node src/test-risk.ts"
+    "test:risk": "ts-node src/test-risk.ts",
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/datasource.ts",
+    "migration:run": "typeorm-ts-node-commonjs migration:run -d src/datasource.ts",
+    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/datasource.ts",
+    "migration:manual": "ts-node src/migration-runner.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.22",
@@ -23,6 +27,7 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "swagger-ui-express": "^5.0.0",
+    "typeorm": "^0.3.28"
     "typeorm": "^0.3.20"
   },
   "devDependencies": {
