@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
@@ -13,6 +14,9 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PUT', 'PATCH'],
     credentials: true,
   });
+
+  // Enable validation pipes
+  app.useGlobalPipes(new ValidationPipe());
 
   const config = new DocumentBuilder()
     .setTitle('TradeFlow API')
