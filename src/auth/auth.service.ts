@@ -17,11 +17,11 @@ export class AuthService {
       const message = `Sign in to TradeFlow with nonce: ${nonce}`;
       const messageBuffer = Buffer.from(message);
       const signatureBuffer = Buffer.from(signature, 'base64');
-      
+
       // Create a keypair from the public key to verify the signature
       const keypair = Keypair.fromPublicKey(publicKey);
       const isValid = keypair.verify(messageBuffer, signatureBuffer);
-      
+
       return isValid;
     } catch (error) {
       return false;
