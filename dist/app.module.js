@@ -14,8 +14,7 @@ const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const health_module_1 = require("./health/health.module");
 const risk_module_1 = require("./risk/risk.module");
-const auth_module_1 = require("./auth/auth.module");
-const throttler_exception_filter_1 = require("./common/filters/throttler-exception.filter");
+const invoices_module_1 = require("./invoices/invoices.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
