@@ -14,24 +14,13 @@ const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const health_module_1 = require("./health/health.module");
 const risk_module_1 = require("./risk/risk.module");
-const auth_module_1 = require("./auth/auth.module");
-const throttler_exception_filter_1 = require("./common/filters/throttler-exception.filter");
+const invoices_module_1 = require("./invoices/invoices.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [
-            throttler_1.ThrottlerModule.forRoot([
-                {
-                    ttl: 60000,
-                    limit: 100,
-                },
-            ]),
-            health_module_1.HealthModule,
-            risk_module_1.RiskModule,
-            auth_module_1.AuthModule,
-        ],
+        imports: [health_module_1.HealthModule, risk_module_1.RiskModule, invoices_module_1.InvoicesModule],
         controllers: [app_controller_1.AppController],
         providers: [
             app_service_1.AppService,
