@@ -1,14 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { RiskService } from './risk/risk.service';
+import { CreateInvoiceDto } from './invoices/dto/create-invoice.dto';
+import { InvoiceDto } from './invoices/dto/invoice.dto';
 
 @Injectable()
 export class AppService {
-  private invoices = [];
+  private invoices: InvoiceDto[] = [];
 
   constructor(private readonly riskService: RiskService) {}
 
   // GET: Fetch all invoices
-  getAllInvoices() {
+  getAllInvoices(): InvoiceDto[] {
     return this.invoices;
   }
 
@@ -18,8 +20,11 @@ export class AppService {
     const date = data.date ? new Date(data.date) : new Date();
 
     const riskScore = this.riskService.calculateScore(amount, date);
+  processNewInvoice(data: CreateInvoiceDto): InvoiceDto {
+    // Mock Risk Logic: Random Score 50-99
+    const riskScore = Math.floor(Math.random() * 50) + 50; 
     
-    const newInvoice = {
+    const newInvoice: InvoiceDto = {
       id: Date.now().toString(),
       ...data,
       riskScore: riskScore,
