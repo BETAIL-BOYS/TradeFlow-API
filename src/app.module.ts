@@ -7,11 +7,12 @@ import { HealthModule } from './health/health.module';
 import { RiskModule } from './risk/risk.module';
 import { AuthModule } from './auth/auth.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { SwapModule } from './swap/swap.module';
 import { ThrottlerExceptionFilter } from './common/filters/throttler-exception.filter';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 @Module({
-  imports: [HealthModule, RiskModule, AuthModule, AnalyticsModule],
+  imports: [HealthModule, RiskModule, AuthModule, AnalyticsModule, SwapModule],
   controllers: [AppController],
   providers: [
     AppService,
