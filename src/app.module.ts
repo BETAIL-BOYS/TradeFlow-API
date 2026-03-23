@@ -6,6 +6,8 @@ import { AppService } from './app.service';
 import { HealthModule } from './health/health.module';
 import { RiskModule } from './risk/risk.module';
 import { AuthModule } from './auth/auth.module';
+import { ThrottlerExceptionFilter } from './common/filters/throttler-exception.filter';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 @Module({
   imports: [HealthModule, RiskModule, AuthModule],
@@ -19,6 +21,10 @@ import { AuthModule } from './auth/auth.module';
     {
       provide: APP_FILTER,
       useClass: ThrottlerExceptionFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
     },
   ],
 })
