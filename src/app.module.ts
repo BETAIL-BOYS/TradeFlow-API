@@ -6,9 +6,10 @@ import { AppService } from './app.service';
 import { HealthModule } from './health/health.module';
 import { RiskModule } from './risk/risk.module';
 import { AuthModule } from './auth/auth.module';
+import { StatsModule } from './stats/stats.module';
 
 @Module({
-  imports: [HealthModule, RiskModule, AuthModule],
+  imports: [HealthModule, RiskModule, AuthModule, StatsModule],
   controllers: [AppController],
   providers: [
     AppService,
