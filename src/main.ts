@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as xssClean from 'xss-clean';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,6 +15,9 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PUT', 'PATCH'],
     credentials: true,
   });
+
+  // Apply XSS protection middleware globally
+  app.use(xssClean());
 
   // Enable validation pipes
   app.useGlobalPipes(new ValidationPipe());
