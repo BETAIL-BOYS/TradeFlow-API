@@ -51,3 +51,42 @@ npm run start
 # 3. Run the CORS verification script (in a new terminal)
 node test-cors.js
 ```
+
+## 📊 API Endpoints
+
+### TVL Statistics
+
+Get Total Value Locked (TVL) metrics for the TradeFlow protocol.
+
+#### `GET /api/v1/stats/tvl`
+
+Returns the current TVL in USD with optional formatting.
+
+**Response Format:**
+```json
+{
+  "tvlUSD": 14500000.50,
+  "lastUpdated": "2026-03-19T00:00:00Z"
+}
+```
+
+**Query Parameters:**
+- `format` (optional): Set to `short` to return formatted TVL (e.g., "14.5M")
+
+**Examples:**
+
+```bash
+# Get full TVL data
+curl http://localhost:3000/api/v1/stats/tvl
+
+# Get formatted TVL for display
+curl http://localhost:3000/api/v1/stats/tvl?format=short
+```
+
+**Short Format Response:**
+```json
+{
+  "tvlUSD": "14.5M",
+  "lastUpdated": "2026-03-19T00:00:00Z"
+}
+```
