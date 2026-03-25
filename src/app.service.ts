@@ -15,12 +15,10 @@ export class AppService {
   }
 
   // POST: Create Invoice & Calculate Risk
-  processNewInvoice(data: any) {
+  processNewInvoice(data: CreateInvoiceDto): InvoiceDto {
     const amount = Number(data.amount) || 0;
     const date = data.date ? new Date(data.date) : new Date();
 
-    const riskScore = this.riskService.calculateScore(amount, date);
-  processNewInvoice(data: CreateInvoiceDto): InvoiceDto {
     // Mock Risk Logic: Random Score 50-99
     const riskScore = Math.floor(Math.random() * 50) + 50; 
     
