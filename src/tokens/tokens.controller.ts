@@ -4,6 +4,9 @@ import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 @ApiTags('Tokens')
 @Controller('tokens')
 export class TokensController {
+  private cachedTokens: string[] | null = null;
+  private cacheTimestamp: number = 0;
+  private readonly CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
   
   @Get()
   @ApiOperation({ summary: 'Search for tokens by symbol', description: 'Search for tokens using a symbol query parameter' })
@@ -30,16 +33,32 @@ export class TokensController {
       };
     }
 
-    // Simulate a search operation - in a real app this would query a database
-    const mockTokens = ['BTC', 'ETH', 'USDT', 'BNB', 'ADA', 'DOT', 'LINK', 'UNI'];
-    const filteredTokens = mockTokens.filter(token => 
+    // Check if cache is valid (exists and not expired)
+    const currentTime = Date.now();
+    const isCacheValid = this.cachedTokens !== null && 
+                        (currentTime - this.cacheTimestamp) < this.CACHE_DURATION_MS;
+
+    let tokens: string[];
+    
+    if (isCacheValid) {
+      // Use cached tokens
+      tokens = this.cachedTokens;
+    } else {
+      // Cache miss or expired - fetch fresh data
+      tokens = ['BTC', 'ETH', 'USDT', 'BNB', 'ADA', 'DOT', 'LINK', 'UNI']; // Simulate database query
+      this.cachedTokens = tokens;
+      this.cacheTimestamp = currentTime;
+    }
+
+    const filteredTokens = tokens.filter(token => 
       token.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return {
       message: `Search results for: ${searchQuery}`,
       searchQuery: searchQuery,
-      results: filteredTokens
+      results: filteredTokens,
+      cached: isCacheValid // Include cache status for debugging
     };
   }
 
