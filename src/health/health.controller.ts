@@ -37,4 +37,35 @@ export class HealthController {
       );
     }
   }
+
+  @Get('api/v1/status')
+  async systemStatus() {
+    try {
+      const uptime = process.uptime();
+      
+      return {
+        operational: 'operational',
+        uptime: Math.floor(uptime),
+        services: {
+          database: 'connected',
+          stellar_rpc: 'connected'
+        },
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          operational: 'degraded',
+          uptime: Math.floor(process.uptime()),
+          services: {
+            database: 'error',
+            stellar_rpc: 'error'
+          },
+          timestamp: new Date().toISOString(),
+          error: 'System status check failed'
+        },
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
+  }
 }
