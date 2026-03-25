@@ -9,11 +9,12 @@ import { AuthModule } from './auth/auth.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { SwapModule } from './swap/swap.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { TokensModule } from './tokens/tokens.module';
 import { ThrottlerExceptionFilter } from './common/filters/throttler-exception.filter';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 @Module({
-  imports: [PrismaModule, HealthModule, RiskModule, AuthModule, AnalyticsModule, SwapModule],
+  imports: [PrismaModule, HealthModule, RiskModule, AuthModule, AnalyticsModule, SwapModule, TokensModule],
   controllers: [AppController],
   providers: [
     AppService,
@@ -31,4 +32,4 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}
