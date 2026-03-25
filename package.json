@@ -11,7 +11,11 @@
     "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/datasource.ts",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d src/datasource.ts",
     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/datasource.ts",
-    "migration:manual": "ts-node src/migration-runner.ts"
+    "migration:manual": "ts-node src/migration-runner.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.22",
@@ -20,15 +24,16 @@
     "@nestjs/platform-express": "^10.4.22",
     "@nestjs/swagger": "^7.1.1",
     "@nestjs/typeorm": "^10.0.2",
+    "@prisma/client": "^5.19.1",
     "@stellar/stellar-sdk": "^11.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.11.0",
+    "prisma": "^5.19.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "swagger-ui-express": "^5.0.0",
     "typeorm": "^0.3.28"
-    "typeorm": "^0.3.20"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.16",
