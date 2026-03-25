@@ -12,9 +12,10 @@ import { PrismaModule } from './prisma/prisma.module';
 import { TokensModule } from './tokens/tokens.module';
 import { ThrottlerExceptionFilter } from './common/filters/throttler-exception.filter';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { OgModule } from './og/og.module';
 
 @Module({
-  imports: [PrismaModule, HealthModule, RiskModule, AuthModule, AnalyticsModule, SwapModule, TokensModule],
+  imports: [PrismaModule, HealthModule, RiskModule, AuthModule, AnalyticsModule, SwapModule, TokensModule, OgModule],
   controllers: [AppController],
   providers: [
     AppService,
