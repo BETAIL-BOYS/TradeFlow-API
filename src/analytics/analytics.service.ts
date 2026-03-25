@@ -5,6 +5,12 @@ export interface VolumeData {
   volumeUSD: number;
 }
 
+export interface ImpermanentLossData {
+  entryPriceRatio: number;
+  currentPriceRatio: number;
+  impermanentLossPercentage: number;
+}
+
 @Injectable()
 export class AnalyticsService {
   generateMockVolumeData(): VolumeData[] {
@@ -27,5 +33,27 @@ export class AnalyticsService {
     }
     
     return data;
+  }
+
+  calculateImpermanentLoss(entryPriceRatio: number, currentPriceRatio: number): ImpermanentLossData {
+    // Validate inputs
+    if (entryPriceRatio <= 0 || currentPriceRatio <= 0) {
+      throw new Error('Price ratios must be positive numbers');
+    }
+
+    // Calculate price ratio (current/entry)
+    const priceRatio = currentPriceRatio / entryPriceRatio;
+    
+    // Apply the standard IL formula: 2 * sqrt(price_ratio) / (1 + price_ratio) - 1
+    const impermanentLoss = (2 * Math.sqrt(priceRatio)) / (1 + priceRatio) - 1;
+    
+    // Convert to percentage
+    const impermanentLossPercentage = impermanentLoss * 100;
+
+    return {
+      entryPriceRatio,
+      currentPriceRatio,
+      impermanentLossPercentage,
+    };
   }
 }
