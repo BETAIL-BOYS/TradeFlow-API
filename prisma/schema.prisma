@@ -1,0 +1,48 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Trade {
+  id          String   @id @default(cuid())
+  poolId      String
+  userAddress String
+  amountIn    String   // Using String to handle decimal values precisely
+  amountOut   String   // Using String to handle decimal values precisely
+  timestamp   DateTime @default(now())
+  
+  @@map("trades")
+}
+
+model Pool {
+  id          String   @id @default(cuid())
+  address     String   @unique
+  tokenA      String
+  tokenB      String
+  fee         String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  trades Trade[]
+  
+  @@map("pools")
+}
+
+model Token {
+  id          String   @id @default(cuid())
+  address     String   @unique
+  symbol      String
+  name        String
+  decimals    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("tokens")
+}
