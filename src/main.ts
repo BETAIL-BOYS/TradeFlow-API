@@ -1,31 +1,32 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
-import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  // Configure CORS for secure cross-origin communication
+  
+  // Enable CORS
   app.enableCors({
-    origin: [
-      'http://localhost:3000', // Local development environment
-      'https://tradeflow-web.vercel.app', // Production environment
-    ],
-    methods: ['GET', 'POST', 'PUT', 'PATCH'],
+    origin: true,
     credentials: true,
   });
 
-  // Enable validation pipes
+  // Global validation pipe
   app.useGlobalPipes(new ValidationPipe());
 
+  // Swagger documentation
   const config = new DocumentBuilder()
     .setTitle('TradeFlow API')
-    .setDescription('API documentation for the TradeFlow application')
+    .setDescription('TradeFlow API documentation')
     .setVersion('1.0')
     .build();
+  
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup('api', app, document);
 
   await app.listen(3000);
+  console.log('Application is running on: http://localhost:3000');
 }
+
 bootstrap();
