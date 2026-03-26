@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { APP_GUARD, APP_FILTER } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
@@ -13,6 +13,7 @@ import { TokensModule } from './tokens/tokens.module';
 import { ThrottlerExceptionFilter } from './common/filters/throttler-exception.filter';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { OgModule } from './og/og.module';
+import { RequireJwtMiddleware } from './common/middleware/require-jwt.middleware';
 
 @Module({
   imports: [PrismaModule, HealthModule, RiskModule, AuthModule, AnalyticsModule, SwapModule, TokensModule, OgModule],
@@ -33,4 +34,13 @@ import { OgModule } from './og/og.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(RequireJwtMiddleware)
+      .forRoutes(
+        { path: 'api/v1/webhook/soroban', method: RequestMethod.POST },
+        { path: 'invoices', method: RequestMethod.POST }, // Database-mutating in AppController
+      );
+  }
+}

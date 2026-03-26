@@ -7,9 +7,15 @@ import { Keypair } from '@stellar/stellar-sdk';
 export class AuthService {
   private readonly jwtSecret = process.env.JWT_SECRET || 'fallback-secret-key';
   private readonly jwtExpiration = '1h';
+  private readonly adminExpiration = '24h';
+  private readonly adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
 
   generateNonce(): string {
     return crypto.randomBytes(16).toString('hex');
+  }
+
+  async verifyAdminPassword(password: string): Promise<boolean> {
+    return password === this.adminPassword;
   }
 
   async verifySignature(publicKey: string, signature: string, nonce: string): Promise<boolean> {
@@ -37,6 +43,17 @@ export class AuthService {
 
     return jwt.sign(payload, this.jwtSecret, {
       expiresIn: this.jwtExpiration,
+    });
+  }
+
+  generateAdminJWT(): string {
+    const payload = {
+      role: 'admin',
+      iat: Math.floor(Date.now() / 1000),
+    };
+
+    return jwt.sign(payload, this.jwtSecret, {
+      expiresIn: this.adminExpiration,
     });
   }
 
