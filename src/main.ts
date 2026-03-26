@@ -11,6 +11,9 @@ const redis = require('../config/redis');
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   
+  // Security: Disable X-Powered-By header to hide Express.js stack
+  app.disable('x-powered-by');
+  
   // Global Rate Limiting (Redis-backed for horizontal scaling)
   app.use(
     rateLimit({
