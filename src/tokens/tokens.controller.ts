@@ -1,5 +1,6 @@
-import { Controller, Get, Query, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Query, HttpException, HttpStatus, Res } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { Response } from 'express';
 
 @ApiTags('Tokens')
 @Controller('tokens')
@@ -24,13 +25,16 @@ export class TokensController {
     }
   })
   @ApiResponse({ status: 400, description: 'Invalid search query' })
-  searchTokens(@Query('search') searchQuery: string) {
+  searchTokens(@Query('search') searchQuery: string, @Res() res: Response) {
+    // Set Cache-Control header for 5 minutes
+    res.set('Cache-Control', 'public, max-age=300');
+    
     if (!searchQuery) {
-      return {
+      return res.json({
         message: 'No search query provided',
         searchQuery: '',
         results: []
-      };
+      });
     }
 
     // Check if cache is valid (exists and not expired)
@@ -54,12 +58,12 @@ export class TokensController {
       token.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    return {
+    return res.json({
       message: `Search results for: ${searchQuery}`,
       searchQuery: searchQuery,
       results: filteredTokens,
       cached: isCacheValid // Include cache status for debugging
-    };
+    });
   }
 
   @Get('vulnerable')
