@@ -27,7 +27,8 @@
     "prisma:push": "prisma db push",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "start:indexer": "node services/eventIndexer.js"
+    "start:indexer": "node services/eventIndexer.js",
+    "start:all": "node server.js"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.22",

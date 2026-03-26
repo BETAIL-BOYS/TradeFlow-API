@@ -9,6 +9,7 @@
 const { rpc } = require('@stellar/stellar-sdk');
 const { PrismaClient } = require('@prisma/client');
 const { parseScVal } = require('./scValParser');
+const wsEvents = require('./wsEvents');
 
 // In case dotenv is not installed as a top-level dependency,
 // we try to load it safely. Most Node.js environments for this project should have it.
@@ -125,6 +126,9 @@ async function handleContractEvent(event) {
       });
 
       console.log(`💾 Indexed Trade saved. DB ID: ${savedTrade.id}`);
+      
+      // Trigger WebSocket broadcast
+      wsEvents.emit('newTrade', savedTrade);
     }
   } catch (error) {
     console.error('❌ Failed to process event:', error.message);
@@ -138,4 +142,9 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-startIndexer();
+exports.startIndexer = startIndexer;
+
+// In standalone mode, starting the indexer automatically
+if (require.main === module) {
+  startIndexer();
+}
