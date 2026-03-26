@@ -6,7 +6,9 @@ import { Keypair } from '@stellar/stellar-sdk';
 @Injectable()
 export class AuthService {
   private readonly jwtSecret = process.env.JWT_SECRET || 'fallback-secret-key';
+  private readonly adminPassword = process.env.ADMIN_PASSWORD || 'TradeFlow2026!';
   private readonly jwtExpiration = '1h';
+  private readonly adminJwtExpiration = '24h';
 
   generateNonce(): string {
     return crypto.randomBytes(16).toString('hex');
@@ -38,6 +40,22 @@ export class AuthService {
     return jwt.sign(payload, this.jwtSecret, {
       expiresIn: this.jwtExpiration,
     });
+  }
+
+  generateAdminJWT(): string {
+    const payload = {
+      role: 'admin',
+      iat: Math.floor(Date.now() / 1000),
+    };
+
+    return jwt.sign(payload, this.jwtSecret, {
+      expiresIn: this.adminJwtExpiration,
+    });
+  }
+
+  async verifyAdminPassword(password: string): Promise<boolean> {
+    // In production, use bcrypt/argon2 hashing. Using simple comparison for this iteration.
+    return password === this.adminPassword;
   }
 
   verifyJWT(token: string): any {

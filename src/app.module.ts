@@ -1,6 +1,8 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { APP_GUARD, APP_FILTER } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
+import Redis from 'ioredis';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HealthModule } from './health/health.module';
@@ -13,10 +15,28 @@ import { TokensModule } from './tokens/tokens.module';
 import { ThrottlerExceptionFilter } from './common/filters/throttler-exception.filter';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { OgModule } from './og/og.module';
+import { JwtMiddleware } from './common/middleware/jwt.middleware';
+import { WebhookController } from './webhooks/webhook.controller';
 
 @Module({
-  imports: [PrismaModule, HealthModule, RiskModule, AuthModule, AnalyticsModule, SwapModule, TokensModule, OgModule],
-  controllers: [AppController],
+  imports: [
+    PrismaModule, 
+    HealthModule, 
+    RiskModule, 
+    AuthModule, 
+    AnalyticsModule, 
+    SwapModule, 
+    TokensModule, 
+    OgModule,
+    ThrottlerModule.forRoot({
+      throttlers: [{
+        ttl: 60000,
+        limit: 10,
+      }],
+      storage: new ThrottlerStorageRedisService(new Redis(process.env.REDIS_URL || 'redis://localhost:6379'))
+    }),
+  ],
+  controllers: [AppController, WebhookController],
   providers: [
     AppService,
     {
@@ -33,4 +53,14 @@ import { OgModule } from './og/og.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(JwtMiddleware)
+      .forRoutes(
+        { path: 'invoices', method: RequestMethod.POST },
+        { path: 'api/v1/webhooks/receive', method: RequestMethod.POST }
+      );
+  }
+}
+
