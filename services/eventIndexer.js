@@ -1,5 +1,6 @@
 const { rpc, xdr, scValToNative } = require('@stellar/stellar-sdk');
 const { PrismaClient } = require('@prisma/client');
+const eventEmitter = require('./eventEmitter');
 
 // Initialize Prisma Client
 const prisma = new PrismaClient();
@@ -164,6 +165,12 @@ async function saveTradeToDb(tradeData) {
     });
 
     console.log(`✅ Trade indexed successfully in DB: ${tradeData.userAddress.substring(0, 8)}...`);
+    
+    // Emit trade event for WebSocket broadcasting
+    eventEmitter.emit('newTrade', {
+        ...tradeData,
+        poolAddress: POOL_ADDRESS
+    });
   } catch (error) {
     console.error('Database insertion error:', error);
   }
