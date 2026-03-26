@@ -42,6 +42,18 @@ async function bootstrap() {
   
   // Apply strict webhook limiter to the Stellar webhook route
   app.use('/api/v1/webhooks/stellar', webhookLimiter);
+  
+  // Environment Variable Validation (failsafe boot sequence)
+  const requiredEnvVars = ['PORT', 'NODE_ENV', 'ADMIN_API_KEY'];
+  const missingVars = requiredEnvVars.filter(key => !process.env[key]);
+  
+  if (missingVars.length > 0) {
+    missingVars.forEach(key => {
+      console.error(`❌ CRITICAL: Missing required environment variable: ${key}`);
+    });
+    console.error('🛑 Server cannot start due to missing configuration. Please check your .env file.');
+    process.exit(1);
+  }
 
   // Enable CORS
   app.enableCors({
