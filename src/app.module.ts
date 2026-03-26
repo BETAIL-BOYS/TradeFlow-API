@@ -12,9 +12,10 @@ import { TokensModule } from './tokens/tokens.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { OgModule } from './og/og.module';
 import { RequireJwtMiddleware } from './common/middleware/require-jwt.middleware';
+import { ConfigModule } from './config/config.module';
 
 @Module({
-  imports: [PrismaModule, HealthModule, RiskModule, AuthModule, AnalyticsModule, SwapModule, TokensModule, OgModule],
+  imports: [PrismaModule, HealthModule, RiskModule, AuthModule, AnalyticsModule, SwapModule, TokensModule, OgModule, ConfigModule],
   controllers: [AppController],
   providers: [
     AppService,
