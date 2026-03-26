@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { APP_GUARD, APP_FILTER } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
@@ -13,10 +13,12 @@ import { TokensModule } from './tokens/tokens.module';
 import { ThrottlerExceptionFilter } from './common/filters/throttler-exception.filter';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { OgModule } from './og/og.module';
+import { JwtMiddleware } from './common/middleware/jwt.middleware';
+import { WebhookController } from './webhooks/webhook.controller';
 
 @Module({
   imports: [PrismaModule, HealthModule, RiskModule, AuthModule, AnalyticsModule, SwapModule, TokensModule, OgModule],
-  controllers: [AppController],
+  controllers: [AppController, WebhookController],
   providers: [
     AppService,
     {
@@ -33,4 +35,14 @@ import { OgModule } from './og/og.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(JwtMiddleware)
+      .forRoutes(
+        { path: 'invoices', method: RequestMethod.POST },
+        { path: 'api/v1/webhooks/receive', method: RequestMethod.POST }
+      );
+  }
+}
+
