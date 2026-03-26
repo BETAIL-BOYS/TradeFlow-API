@@ -27,6 +27,21 @@ async function bootstrap() {
       message: 'Too many requests from this IP, please try again after 15 minutes',
     }),
   );
+  
+  // Strict Rate Limiter for Webhook Endpoint (DDoS protection)
+  const webhookLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 50, // Limit each IP to 50 requests per minute
+    standardHeaders: true,
+    legacyHeaders: false,
+    store: new RedisStore({
+      sendCommand: (...args) => redis.call(...args),
+    }),
+    message: 'Too many webhook requests from this IP, please try again after 1 minute',
+  });
+  
+  // Apply strict webhook limiter to the Stellar webhook route
+  app.use('/api/v1/webhooks/stellar', webhookLimiter);
 
   // Enable CORS
   app.enableCors({
