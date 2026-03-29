@@ -82,7 +82,7 @@ export class AnalyticsService {
     const baseVolumes = [850000, 720000, 650000, 580000, 490000, 420000, 380000, 310000, 270000, 220000];
     
     const leaderboard: LeaderboardEntry[] = dummyWallets.map((wallet, index) => ({
-      walletAddress,
+      walletAddress: wallet,
       volumeUSD: baseVolumes[index] + Math.round(Math.random() * 50000 - 25000),
       rank: index + 1
     }));
