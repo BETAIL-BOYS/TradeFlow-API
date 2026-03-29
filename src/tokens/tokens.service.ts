@@ -29,27 +29,31 @@ export class TokensService {
       };
     }
 
-    // Check if cache is valid
-    const currentTime = Date.now();
-    const isCacheValid = this.cachedAssets !== null && 
-                        (currentTime - this.cacheTimestamp) < this.CACHE_DURATION_MS;
-
+    const cacheKey = 'tokens:all_assets';
     let assets: any[];
-    
-    if (isCacheValid) {
-      assets = this.cachedAssets;
-      this.logger.log('Using cached assets data');
-    } else {
-      try {
+    let isCacheValid = false;
+
+    try {
+      // Try to get from Redis
+      const redis = require('../../config/redis');
+      const cachedData = await redis.get(cacheKey);
+
+      if (cachedData) {
+        assets = JSON.parse(cachedData);
+        isCacheValid = true;
+        this.logger.log('🎯 Redis Cache HIT - Using distributed asset data');
+      } else {
+        // Cache miss - fetch fresh data
+        this.logger.log('❌ Redis Cache MISS - Fetching fresh data from Stellar');
         assets = await this.fetchAssetsFromHorizon();
-        this.cachedAssets = assets;
-        this.cacheTimestamp = currentTime;
-        this.logger.log('Fetched fresh assets from Stellar Horizon API');
-      } catch (error) {
-        this.logger.error('Failed to fetch assets from Horizon API:', error);
-        // Fallback to mock data if API fails
-        assets = this.getMockAssets();
+        
+        // Save to Redis with 5-minute expiration
+        await redis.set(cacheKey, JSON.stringify(assets), 'PX', this.CACHE_DURATION_MS);
       }
+    } catch (error) {
+      this.logger.error('Redis error or fetch error:', error.message);
+      // Fallback to mock data if everything fails
+      assets = this.getMockAssets();
     }
 
     // Filter assets based on search query

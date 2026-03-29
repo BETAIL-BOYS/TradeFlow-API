@@ -26,7 +26,9 @@
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "start:indexer": "node services/eventIndexer.js",
+    "start:all": "node server.js"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.22",
@@ -41,10 +43,13 @@
     "@types/jsonwebtoken": "^9.0.10",
     "axios": "^1.13.6",
     "class-validator": "^0.14.4",
+    "express-rate-limit": "^8.3.1",
+    "ioredis": "^5.10.1",
     "jsonwebtoken": "^9.0.3",
     "node-cron": "^3.0.3",
     "pg": "^8.11.0",
     "prisma": "^5.19.1",
+    "rate-limit-redis": "^4.3.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "swagger-ui-express": "^5.0.0",
