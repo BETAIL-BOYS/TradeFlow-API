@@ -11,6 +11,12 @@ export interface ImpermanentLossData {
   impermanentLossPercentage: number;
 }
 
+export interface LeaderboardEntry {
+  walletAddress: string;
+  volumeUSD: number;
+  rank: number;
+}
+
 @Injectable()
 export class AnalyticsService {
   generateMockVolumeData(): VolumeData[] {
@@ -55,5 +61,32 @@ export class AnalyticsService {
       currentPriceRatio,
       impermanentLossPercentage,
     };
+  }
+
+  generateLeaderboard(): LeaderboardEntry[] {
+    // Generate dummy wallet addresses (truncated for privacy)
+    const dummyWallets = [
+      '0x742d...8b4c',
+      '0x8f3a...2d1e',
+      '0x1a9c...5f7b',
+      '0x6e2d...9a3c',
+      '0x4b8f...1e2d',
+      '0x9c3a...7f5b',
+      '0x2d8f...4c1e',
+      '0x5a7b...9d2f',
+      '0x8e1c...3a6b',
+      '0x3f9d...2e8c'
+    ];
+
+    // Generate realistic trading volumes (sorted in descending order)
+    const baseVolumes = [850000, 720000, 650000, 580000, 490000, 420000, 380000, 310000, 270000, 220000];
+    
+    const leaderboard: LeaderboardEntry[] = dummyWallets.map((wallet, index) => ({
+      walletAddress,
+      volumeUSD: baseVolumes[index] + Math.round(Math.random() * 50000 - 25000),
+      rank: index + 1
+    }));
+
+    return leaderboard;
   }
 }

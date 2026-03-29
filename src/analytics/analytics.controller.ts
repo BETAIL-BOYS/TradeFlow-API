@@ -1,6 +1,6 @@
 import { Controller, Get, HttpStatus, Query } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
-import { AnalyticsService, VolumeData, ImpermanentLossData } from './analytics.service';
+import { AnalyticsService, VolumeData, ImpermanentLossData, LeaderboardEntry } from './analytics.service';
 
 @ApiTags('Analytics')
 @Controller('api/v1/analytics')
@@ -76,5 +76,26 @@ export class AnalyticsController {
       data: result,
       timestamp: new Date().toISOString(),
     };
+  }
+
+  @Get('leaderboard')
+  @ApiOperation({ summary: 'Get top volume traders leaderboard' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved leaderboard data',
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          rank: { type: 'number', example: 1 },
+          walletAddress: { type: 'string', example: '0x742d...8b4c' },
+          volumeUSD: { type: 'number', example: 850000 },
+        },
+      },
+    },
+  })
+  getLeaderboard(): LeaderboardEntry[] {
+    return this.analyticsService.generateLeaderboard();
   }
 }
