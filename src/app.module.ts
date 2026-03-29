@@ -13,9 +13,10 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { OgModule } from './og/og.module';
 import { RequireJwtMiddleware } from './common/middleware/require-jwt.middleware';
 import { ConfigModule } from './config/config.module';
+import { PoolsModule } from './pools/pools.module';
 
 @Module({
-  imports: [PrismaModule, HealthModule, RiskModule, AuthModule, AnalyticsModule, SwapModule, TokensModule, OgModule, ConfigModule],
+  imports: [PrismaModule, HealthModule, RiskModule, AuthModule, AnalyticsModule, SwapModule, TokensModule, OgModule, ConfigModule, PoolsModule],
   controllers: [AppController],
   providers: [
     AppService,
