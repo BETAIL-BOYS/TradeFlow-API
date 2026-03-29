@@ -13,9 +13,10 @@ import { TokensModule } from './tokens/tokens.module';
 import { ThrottlerExceptionFilter } from './common/filters/throttler-exception.filter';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { OgModule } from './og/og.module';
+import { NetworkModule } from './network/network.module';
 
 @Module({
-  imports: [PrismaModule, HealthModule, RiskModule, AuthModule, AnalyticsModule, SwapModule, TokensModule, OgModule],
+  imports: [PrismaModule, HealthModule, RiskModule, AuthModule, AnalyticsModule, SwapModule, TokensModule, OgModule, NetworkModule],
   controllers: [AppController],
   providers: [
     AppService,
