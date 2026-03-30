@@ -5,18 +5,12 @@ import { AppService } from './app.service';
 import { HealthModule } from './health/health.module';
 import { RiskModule } from './risk/risk.module';
 import { AuthModule } from './auth/auth.module';
-import { AnalyticsModule } from './analytics/analytics.module';
-import { SwapModule } from './swap/swap.module';
-import { PrismaModule } from './prisma/prisma.module';
-import { TokensModule } from './tokens/tokens.module';
-import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
-import { OgModule } from './og/og.module';
-import { RequireJwtMiddleware } from './common/middleware/require-jwt.middleware';
-import { ConfigModule } from './config/config.module';
+import { TokenController } from './controllers/tokenController';
+import { PriceController } from './controllers/priceController';
 
 @Module({
-  imports: [PrismaModule, HealthModule, RiskModule, AuthModule, AnalyticsModule, SwapModule, TokensModule, OgModule, ConfigModule],
-  controllers: [AppController],
+  imports: [HealthModule, RiskModule, AuthModule],
+  controllers: [AppController, TokenController, PriceController],
   providers: [
     AppService,
     {
