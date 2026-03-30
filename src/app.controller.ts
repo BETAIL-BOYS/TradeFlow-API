@@ -32,4 +32,11 @@ export class AppController {
   createInvoice(@Body() createInvoiceDto: CreateInvoiceDto): InvoiceDto {
     return this.appService.processNewInvoice(createInvoiceDto);
   }
+
+  @Get('test-error')
+  @ApiOperation({ summary: 'Test error handling', description: 'Deliberately throws an error to test global error handling' })
+  @ApiResponse({ status: 500, description: 'Error handled by global exception filter' })
+  testError(): never {
+    throw new Error('This is a test error to verify global error handling works correctly');
+  }
 }

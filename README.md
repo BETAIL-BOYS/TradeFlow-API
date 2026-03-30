@@ -51,3 +51,106 @@ npm run start
 # 3. Run the CORS verification script (in a new terminal)
 node test-cors.js
 ```
+
+## 📊 API Endpoints
+
+### TVL Statistics
+
+Get Total Value Locked (TVL) metrics for the TradeFlow protocol.
+
+#### `GET /api/v1/stats/tvl`
+
+Returns the current TVL in USD with optional formatting.
+
+**Response Format:**
+```json
+{
+  "tvlUSD": 14500000.50,
+  "lastUpdated": "2026-03-19T00:00:00Z"
+}
+```
+
+**Query Parameters:**
+- `format` (optional): Set to `short` to return formatted TVL (e.g., "14.5M")
+
+**Examples:**
+
+```bash
+# Get full TVL data
+curl http://localhost:3000/api/v1/stats/tvl
+
+# Get formatted TVL for display
+curl http://localhost:3000/api/v1/stats/tvl?format=short
+```
+
+**Short Format Response:**
+```json
+{
+  "tvlUSD": "14.5M",
+  "lastUpdated": "2026-03-19T00:00:00Z"
+}
+```
+
+### Analytics Endpoints
+
+#### `GET /api/v1/analytics/leaderboard`
+
+Get the top traders leaderboard sorted by 7-day trading volume.
+
+**Response Format:**
+```json
+[
+  {
+    "rank": 1,
+    "walletAddress": "0x742d...8b4c",
+    "volumeUSD": 850000
+  },
+  {
+    "rank": 2,
+    "walletAddress": "0x8f3a...2d1e",
+    "volumeUSD": 720000
+  }
+]
+```
+
+### Token Verification
+
+#### `GET /api/v1/tokens/verify/:address`
+
+Check if a Stellar contract address is officially verified and safe to trade.
+
+**Response Format:**
+```json
+{
+  "isVerified": true,
+  "riskLevel": "LOW"
+}
+```
+
+**Parameters:**
+- `address` (path): Stellar contract address to verify
+
+### Network Fees
+
+#### `GET /api/v1/network/fees`
+
+Get current Stellar network fee estimates.
+
+**Response Format:**
+```json
+{
+  "success": true,
+  "data": {
+    "baseFee": 100,
+    "priorityFee": 500,
+    "estimatedTotal": 600
+  },
+  "timestamp": "2024-01-15T10:30:00.000Z"
+}
+```
+
+**Note:** This endpoint includes a 30-second cache header for performance optimization.
+
+### Background Jobs
+
+The API includes a background indexer job that runs every 5 minutes to sync blockchain data. This is automatically initialized when the server starts and logs "Syncing Blockchain Data..." during each run.
