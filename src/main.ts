@@ -44,7 +44,7 @@ async function bootstrap() {
   app.use('/api/v1/webhooks/stellar', webhookLimiter);
   
   // Environment Variable Validation (failsafe boot sequence)
-  const requiredEnvVars = ['PORT', 'NODE_ENV', 'ADMIN_API_KEY'];
+  const requiredEnvVars = ['PORT', 'NODE_ENV', 'ADMIN_API_KEY', 'WEBHOOK_SECRET'];
   const missingVars = requiredEnvVars.filter(key => !process.env[key]);
   
   if (missingVars.length > 0) {

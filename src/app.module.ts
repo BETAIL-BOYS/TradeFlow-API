@@ -14,7 +14,7 @@ import { OgModule } from './og/og.module';
 import { RequireJwtMiddleware } from './common/middleware/require-jwt.middleware';
 import { ConfigModule } from './config/config.module';
 import { PoolsModule } from './pools/pools.module';
-import { PricesModule } from './prices/prices.module';
+import { WebhookBodyMiddleware } from './auth/middleware/webhook-body.middleware';
 
 @Module({
   imports: [PrismaModule, HealthModule, RiskModule, AuthModule, AnalyticsModule, SwapModule, TokensModule, OgModule, ConfigModule, PoolsModule, PricesModule],
@@ -29,6 +29,14 @@ import { PricesModule } from './prices/prices.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
+    // Apply webhook body middleware FIRST to capture raw body before JSON parsing
+    consumer
+      .apply(WebhookBodyMiddleware)
+      .forRoutes(
+        { path: 'api/v1/webhook/soroban', method: RequestMethod.POST },
+      );
+
+    // Then apply JWT middleware for authentication
     consumer
       .apply(RequireJwtMiddleware)
       .forRoutes(
