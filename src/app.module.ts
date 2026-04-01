@@ -17,7 +17,7 @@ import { PoolsModule } from './pools/pools.module';
 import { WebhookBodyMiddleware } from './auth/middleware/webhook-body.middleware';
 
 @Module({
-  imports: [PrismaModule, HealthModule, RiskModule, AuthModule, AnalyticsModule, SwapModule, TokensModule, OgModule, ConfigModule, PoolsModule],
+  imports: [PrismaModule, HealthModule, RiskModule, AuthModule, AnalyticsModule, SwapModule, TokensModule, OgModule, ConfigModule, PoolsModule, PricesModule],
   controllers: [AppController],
   providers: [
     AppService,
