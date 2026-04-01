@@ -14,9 +14,10 @@ import { OgModule } from './og/og.module';
 import { RequireJwtMiddleware } from './common/middleware/require-jwt.middleware';
 import { ConfigModule } from './config/config.module';
 import { PoolsModule } from './pools/pools.module';
+import { PricesModule } from './prices/prices.module';
 
 @Module({
-  imports: [PrismaModule, HealthModule, RiskModule, AuthModule, AnalyticsModule, SwapModule, TokensModule, OgModule, ConfigModule, PoolsModule],
+  imports: [PrismaModule, HealthModule, RiskModule, AuthModule, AnalyticsModule, SwapModule, TokensModule, OgModule, ConfigModule, PoolsModule, PricesModule],
   controllers: [AppController],
   providers: [
     AppService,
