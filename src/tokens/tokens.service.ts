@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Horizon } from '@stellar/stellar-sdk';
 
 /**
@@ -12,10 +12,52 @@ export class TokensService {
   private cachedAssets: any[] | null = null;
   private cacheTimestamp: number = 0;
   private readonly CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+  private readonly HORIZON_TIMEOUT_MS = 10000; // 10 seconds for Horizon API calls
 
   constructor() {
     // Connect to Stellar Horizon Testnet
     this.server = new Horizon.Server('https://horizon-testnet.stellar.org');
+  }
+
+  /**
+   * Wraps a Horizon API call with a timeout to prevent hanging requests.
+   * @param promise - The Horizon API promise to wrap
+   * @param operation - Description of the operation for logging
+   * @returns A promise that resolves with the result or rejects on timeout
+   * @private
+   */
+  private async withTimeout<T>(promise: Promise<T>, operation: string): Promise<T> {
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error(`Horizon API timeout: ${operation} exceeded ${this.HORIZON_TIMEOUT_MS}ms`));
+      }, this.HORIZON_TIMEOUT_MS);
+    });
+
+    try {
+      return await Promise.race([promise, timeoutPromise]);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('timeout')) {
+        this.logger.warn(`Horizon API timeout during ${operation}`);
+        throw error;
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Checks if an error is a 404 Not Found error from Horizon.
+   * @param error - The error to check
+   * @returns True if the error is a 404, false otherwise
+   * @private
+   */
+  private isNotFoundError(error: any): boolean {
+    if (error?.response?.status === 404) {
+      return true;
+    }
+    if (error?.message?.includes('404') || error?.message?.includes('not found')) {
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -90,10 +132,13 @@ export class TokensService {
    */
   private async fetchAssetsFromHorizon(): Promise<any[]> {
     try {
-      // Fetch assets from Horizon API
-      const assetsResponse = await this.server.assets()
-        .limit(20) // Limit to 20 assets for performance
-        .call();
+      // Fetch assets from Horizon API with timeout
+      const assetsResponse = await this.withTimeout(
+        this.server.assets()
+          .limit(20) // Limit to 20 assets for performance
+          .call() as Promise<Horizon.ServerApi.CollectionResponse<Horizon.ServerApi.AssetRecord>>,
+        'fetch assets'
+      );
 
       // Transform the data to include relevant information
       return assetsResponse.records.map(asset => ({
@@ -106,7 +151,11 @@ export class TokensService {
         _links: asset._links
       }));
     } catch (error) {
-      this.logger.error('Error fetching assets from Horizon:', error);
+      if (this.isNotFoundError(error)) {
+        this.logger.warn('Horizon API returned 404 when fetching assets');
+        throw new Error('Horizon API endpoint not found');
+      }
+      this.logger.error('Error fetching assets from Horizon:', error.message || error);
       throw error;
     }
   }
@@ -149,18 +198,33 @@ export class TokensService {
 
   async getSpecificAsset(assetCode: string, assetIssuer: string): Promise<any> {
     try {
-      const assetResponse = await this.server.assets()
-        .forCode(assetCode)
-        .forIssuer(assetIssuer)
-        .call();
+      const assetResponse = await this.withTimeout(
+        this.server.assets()
+          .forCode(assetCode)
+          .forIssuer(assetIssuer)
+          .call() as Promise<Horizon.ServerApi.CollectionResponse<Horizon.ServerApi.AssetRecord>>,
+        `fetch asset ${assetCode}`
+      );
 
       if (assetResponse.records.length === 0) {
-        throw new Error(`Asset ${assetCode} from issuer ${assetIssuer} not found`);
+        this.logger.warn(`Asset ${assetCode} from issuer ${assetIssuer} not found (empty records)`);
+        throw new NotFoundException(`Asset ${assetCode} from issuer ${assetIssuer} not found`);
       }
 
       return assetResponse.records[0];
     } catch (error) {
-      this.logger.error(`Error fetching asset ${assetCode}:`, error);
+      if (this.isNotFoundError(error)) {
+        this.logger.warn(`Asset ${assetCode} from issuer ${assetIssuer} not found (404)`);
+        throw new NotFoundException(`Asset ${assetCode} from issuer ${assetIssuer} not found`);
+      }
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      if (error instanceof Error && error.message.includes('timeout')) {
+        this.logger.error(`Timeout fetching asset ${assetCode}: ${error.message}`);
+        throw new Error(`Request timeout while fetching asset ${assetCode}`);
+      }
+      this.logger.error(`Error fetching asset ${assetCode}:`, error.message || error);
       throw error;
     }
   }
