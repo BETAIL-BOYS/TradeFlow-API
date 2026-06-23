@@ -16,6 +16,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MaintenanceMiddleware } from './common/middleware/maintenance.middleware';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 import { RedisModule } from './common/redis/redis.module';
+import { TransactionsModule } from './transactions/transactions.module';
 
 /**
  * Root module of the application.
@@ -33,7 +34,8 @@ import { RedisModule } from './common/redis/redis.module';
     SwapModule, 
     TokensModule, 
     OgModule,
-    TradeModule
+    TradeModule,
+    TransactionsModule
   ],
   controllers: [AppController],
   providers: [
