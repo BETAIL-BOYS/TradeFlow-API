@@ -20,17 +20,19 @@ describe('PoolsController (integration)', () => {
     await app.close();
   });
 
-  it('GET /api/v1/pools/:poolId/apy-history returns 200 and success envelope', async () => {
+  it('GET /api/v1/pools/:poolId/apy-history returns 200 and a 7-point history array', async () => {
     const res = await request(app.getHttpServer())
       .get('/api/v1/pools/pool-123/apy-history')
       .expect(200);
 
+    // The endpoint returns the APY history array directly (see the controller's
+    // `ApyHistoryPoint[]` return type / Swagger `isArray: true`); this app has no
+    // global response-envelope interceptor.
     expect(res.body).toBeDefined();
-    expect(res.body.status).toBe('success');
-    expect(Array.isArray(res.body.data)).toBe(true);
-    expect(res.body.data).toHaveLength(7);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body).toHaveLength(7);
 
-    for (const item of res.body.data) {
+    for (const item of res.body) {
       expect(item).toHaveProperty('date');
       expect(item).toHaveProperty('apyPercentage');
       expect(typeof item.date).toBe('string');
