@@ -1,4 +1,4 @@
-import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+﻿import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -12,48 +12,24 @@ import { TokensModule } from './tokens/tokens.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { OgModule } from './og/og.module';
 import { TradeModule } from './trade/trade.module';
+import { QueueModule } from './queue/queue.module';
 import { ConfigModule } from '@nestjs/config';
 import { MaintenanceMiddleware } from './common/middleware/maintenance.middleware';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 import { RedisModule } from './common/redis/redis.module';
 
-/**
- * Root module of the application.
- * Orchestrates the integration of all feature modules and global middleware.
- */
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    RedisModule,
-    PrismaModule, 
-    HealthModule, 
-    RiskModule, 
-    AuthModule, 
-    AnalyticsModule, 
-    SwapModule, 
-    TokensModule, 
-    OgModule,
-    TradeModule
+    RedisModule, PrismaModule, HealthModule, RiskModule,
+    AuthModule, AnalyticsModule, SwapModule, TokensModule,
+    OgModule, TradeModule, QueueModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    {
-      provide: APP_FILTER,
-      useClass: AllExceptionsFilter,
-    },
-  ],
+  providers: [AppService, { provide: APP_FILTER, useClass: AllExceptionsFilter }],
 })
 export class AppModule implements NestModule {
-  /**
-   * Configures global middleware for the entire application.
-   * Currently applies RequestIdMiddleware and MaintenanceMiddleware to all routes.
-   * 
-   * @param consumer - The middleware consumer to register middleware on.
-   */
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(RequestIdMiddleware, MaintenanceMiddleware)
-      .forRoutes('*');
+    consumer.apply(RequestIdMiddleware, MaintenanceMiddleware).forRoutes('*');
   }
 }
