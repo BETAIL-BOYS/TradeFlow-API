@@ -6,7 +6,7 @@ import { IndexerJob } from './jobs/indexer';
 import { CustomLogger } from './common/logger/custom.logger';
 import rateLimit from 'express-rate-limit';
 import RedisStore from 'rate-limit-redis';
-import compression from 'compression';
+import * as compression from 'compression';
 
 // Redis is optional - gracefully fall back to in-memory limiting if unavailable
 let redis: any = null;

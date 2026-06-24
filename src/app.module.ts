@@ -14,6 +14,7 @@ import { OgModule } from './og/og.module';
 import { TradeModule } from './trade/trade.module';
 import { OrdersModule } from './orders/orders.module';
 import { GasModule } from './gas/gas.module';
+import { MetricsModule } from './metrics/metrics.module';
 import { ConfigModule } from '@nestjs/config';
 import { MaintenanceMiddleware } from './common/middleware/maintenance.middleware';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
@@ -34,6 +35,7 @@ import { RedisModule } from './common/redis/redis.module';
     TradeModule,
     OrdersModule,
     GasModule,
+    MetricsModule,
   ],
   controllers: [AppController],
   providers: [

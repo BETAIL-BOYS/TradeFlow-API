@@ -1,6 +1,6 @@
 ﻿import { Injectable, Logger } from '@nestjs/common';
+import { Horizon } from '@stellar/stellar-sdk';
 import { RedisService } from '../common/redis/redis.service';
-import { Server } from '@stellar/stellar-sdk/rpc';
 
 export interface FeeTiers {
   low: string;
@@ -32,10 +32,14 @@ export class GasService {
 
   private async fetchAndCache() {
     try {
-      const rpcUrl = process.env.STELLAR_RPC_URL || 'https://soroban-testnet.stellar.org';
-      const server = new Server(rpcUrl);
-      const ledger = await server.getLatestLedger();
-      const baseFee = parseInt(ledger.baseFeeInStroops || '100', 10);
+      const horizonUrl =
+        process.env.HORIZON_URL || 'https://horizon-testnet.stellar.org';
+      const server = new Horizon.Server(horizonUrl);
+      const ledger = await server.ledgers().order('desc').limit(1).call();
+      const baseFee = parseInt(
+        ledger.records[0]?.base_fee_in_stroops?.toString() || '100',
+        10,
+      );
 
       const tiers: FeeTiers = {
         low: Math.ceil(baseFee * 1.0).toString(),

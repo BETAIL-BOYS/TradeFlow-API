@@ -1,4 +1,4 @@
-import { ConsoleLogger, Injectable, Scope } from '@nestjs/common';
+import { ConsoleLogger, Injectable, Scope, LogLevel } from '@nestjs/common';
 import { requestContextStorage } from '../storage/request-context.storage';
 
 /**
@@ -19,7 +19,7 @@ export class CustomLogger extends ConsoleLogger {
    * @returns The fully formatted log string.
    */
   formatMessage(
-    logLevel: string,
+    logLevel: LogLevel,
     message: unknown,
     pidMessage: string,
     formattedLogLevel: string,

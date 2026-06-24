@@ -110,10 +110,22 @@ async function handleContractEvent(event) {
 
       console.log('Decoded Payload:', JSON.stringify(payload, null, 2));
 
+      // Ensure pool exists and resolve FK to Pool.id (not contract address)
+      const pool = await prisma.pool.upsert({
+        where: { address: event.contractId },
+        update: {},
+        create: {
+          address: event.contractId,
+          tokenA: 'unknown',
+          tokenB: 'unknown',
+          fee: '30',
+        },
+      });
+
       // Map Soroban event data to our Prisma Trade model
       // Expected structure from SwapEvent: { user, amount_in, amount_out }
       const tradeData = {
-        poolId: event.contractId,
+        poolId: pool.id,
         userAddress: payload.user || payload.address || 'Unknown',
         amountIn: (payload.amount_in || payload.amountIn || '0').toString(),
         amountOut: (payload.amount_out || payload.amountOut || '0').toString(),
@@ -122,7 +134,7 @@ async function handleContractEvent(event) {
 
       // Save to Database via Prisma
       const savedTrade = await prisma.trade.create({
-        data: tradeData
+        data: tradeData,
       });
 
       console.log(`💾 Indexed Trade saved. DB ID: ${savedTrade.id}`);

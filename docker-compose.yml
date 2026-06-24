@@ -1,14 +1,25 @@
-version: '3.8'
 services:
   api:
     build: .
     ports: ["3000:3000"]
     environment:
       - DATABASE_HOST=db
+      - DATABASE_URL=postgresql://postgres:password@db:5432/tradeflow?schema=public
     depends_on:
       - db
+      - redis
   db:
     image: postgres:15-alpine
     ports: ["5432:5432"]
     environment:
-      - POSTGRES_PASSWORD=password
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: tradeflow
+    volumes:
+      - tradeflow_pgdata:/var/lib/postgresql/data
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
+volumes:
+  tradeflow_pgdata:

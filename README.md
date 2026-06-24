@@ -121,6 +121,98 @@ Get historical Total Value Locked (TVL) data for the analytics dashboard.
 curl http://localhost:3000/api/v1/stats/tvl/history
 ```
 
+### Admin Metrics
+
+Aggregated protocol-wide statistics for administrative dashboards. Metrics are recomputed every **5 minutes** by a background scheduler and served from Redis cache (with PostgreSQL snapshot fallback).
+
+All endpoints require a valid admin JWT obtained via `POST /api/v1/admin/login`.
+
+#### `POST /api/v1/admin/login`
+
+Authenticate with the configured `ADMIN_PASSWORD` to obtain a Bearer token.
+
+```bash
+curl -X POST http://localhost:3000/api/v1/admin/login \
+  -H "Content-Type: application/json" \
+  -d '{"password":"your-admin-password"}'
+```
+
+**Response:**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+#### `GET /api/v1/admin/metrics/tvl`
+
+Returns global Total Value Locked (sum of USD value across all active pools).
+
+**Response Format:**
+```json
+{
+  "success": true,
+  "data": {
+    "tvlUSD": 14500000.50,
+    "poolCount": 12,
+    "lastUpdated": "2026-06-24T12:00:00.000Z"
+  },
+  "timestamp": "2026-06-24T12:00:00.000Z"
+}
+```
+
+**Example:**
+```bash
+curl http://localhost:3000/api/v1/admin/metrics/tvl \
+  -H "Authorization: Bearer <admin-token>"
+```
+
+#### `GET /api/v1/admin/metrics/revenue`
+
+Returns total cumulative protocol fees routed to the Treasury (derived from indexed swaps × pool fee tiers).
+
+**Response Format:**
+```json
+{
+  "success": true,
+  "data": {
+    "totalRevenueUSD": 125000.75,
+    "lastUpdated": "2026-06-24T12:00:00.000Z"
+  },
+  "timestamp": "2026-06-24T12:00:00.000Z"
+}
+```
+
+**Example:**
+```bash
+curl http://localhost:3000/api/v1/admin/metrics/revenue \
+  -H "Authorization: Bearer <admin-token>"
+```
+
+#### `GET /api/v1/admin/metrics/active-users`
+
+Returns distinct active trader counts for rolling 24-hour, 7-day, and 30-day windows.
+
+**Response Format:**
+```json
+{
+  "success": true,
+  "data": {
+    "activeUsers24h": 142,
+    "activeUsers7d": 890,
+    "activeUsers30d": 3200,
+    "lastUpdated": "2026-06-24T12:00:00.000Z"
+  },
+  "timestamp": "2026-06-24T12:00:00.000Z"
+}
+```
+
+**Example:**
+```bash
+curl http://localhost:3000/api/v1/admin/metrics/active-users \
+  -H "Authorization: Bearer <admin-token>"
+```
+
 ### Analytics Endpoints
 
 #### `GET /api/v1/analytics/leaderboard`

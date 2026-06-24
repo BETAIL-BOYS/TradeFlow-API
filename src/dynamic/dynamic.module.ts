@@ -1,9 +1,7 @@
 import { Module } from '@nestjs/common';
-import { InvoicesController } from './invoices.controller';
-import { PdfService } from './pdf.service';
+import { NetworkController } from './dynamic.controller';
 
 @Module({
-  controllers: [InvoicesController],
-  providers: [PdfService],
+  controllers: [NetworkController],
 })
-export class InvoicesModule {}
+export class DynamicModule {}

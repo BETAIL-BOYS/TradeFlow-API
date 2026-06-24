@@ -1,4 +1,4 @@
-﻿// This is your Prisma schema file,
+// This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
@@ -44,21 +44,40 @@ model Trade {
 
   pool        Pool     @relation(fields: [poolId], references: [id])
 
+  @@index([userAddress, timestamp])
   @@map("trades")
 }
 
 model Pool {
-  id          String   @id @default(cuid())
-  address     String   @unique
-  tokenA      String
-  tokenB      String
-  fee         String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  id           String    @id @default(cuid())
+  address      String    @unique
+  tokenA       String
+  tokenB       String
+  fee          String
+  reserveA     String?
+  reserveB     String?
+  tvlUsd       Decimal?  @db.Decimal(20, 8)
+  isActive     Boolean   @default(true)
+  lastSyncedAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
   trades Trade[]
-  
+
   @@map("pools")
+}
+
+model ProtocolMetricsSnapshot {
+  id              String   @id @default(cuid())
+  globalTvlUsd    Decimal  @db.Decimal(20, 8)
+  totalRevenueUsd Decimal  @db.Decimal(20, 8)
+  activeUsers24h  Int
+  activeUsers7d   Int
+  activeUsers30d  Int
+  computedAt      DateTime @default(now())
+
+  @@index([computedAt])
+  @@map("protocol_metrics_snapshots")
 }
 
 model Token {
@@ -69,6 +88,6 @@ model Token {
   decimals    Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   @@map("tokens")
 }
