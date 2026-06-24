@@ -1,0 +1,116 @@
+trigger:
+  branches:
+    exclude:
+      - '*'
+
+pr:
+  branches:
+    include:
+      - '*'
+
+variables:
+  nodeVersion: '20.x'
+  # Block PRs if global line coverage drops below this percentage
+  coverageThreshold: '80'
+
+stages:
+  - stage: Lint
+    displayName: Lint
+    jobs:
+      - job: LintJob
+        displayName: ESLint + Prettier checks
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: NodeTool@0
+            displayName: Use Node.js $(nodeVersion)
+            inputs:
+              versionSpec: '$(nodeVersion)'
+
+          - task: Cache@2
+            displayName: Cache npm
+            inputs:
+              key: 'npm | "$(Agent.OS)" | package-lock.json'
+              restoreKeys: |
+                npm | "$(Agent.OS)"
+              path: '$(Pipeline.Workspace)/.npm'
+
+          - script: |
+              npm ci --cache "$(Pipeline.Workspace)/.npm" --prefer-offline
+            displayName: Install dependencies
+
+          - script: |
+              npm run lint -- --max-warnings=0
+            displayName: Run ESLint
+
+          - script: |
+              npx prettier --check "src/**/*.ts" "test/**/*.ts"
+            displayName: Run Prettier check
+
+  - stage: Test
+    displayName: Test
+    dependsOn: Lint
+    jobs:
+      - job: TestJob
+        displayName: Jest tests + coverage gate
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: NodeTool@0
+            displayName: Use Node.js $(nodeVersion)
+            inputs:
+              versionSpec: '$(nodeVersion)'
+
+          - task: Cache@2
+            displayName: Cache npm
+            inputs:
+              key: 'npm | "$(Agent.OS)" | package-lock.json'
+              restoreKeys: |
+                npm | "$(Agent.OS)"
+              path: '$(Pipeline.Workspace)/.npm'
+
+          - script: |
+              npm ci --cache "$(Pipeline.Workspace)/.npm" --prefer-offline
+            displayName: Install dependencies
+
+          - script: |
+              npx jest --coverage --coverageReporters=text-summary --coverageThreshold='{"global":{"lines":$(coverageThreshold)}}'
+            displayName: Run Jest with coverage >= $(coverageThreshold)% (lines)
+
+          - task: PublishCodeCoverageResults@1
+            displayName: Publish coverage report
+            inputs:
+              codeCoverageTool: 'Cobertura'
+              summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage/cobertura-coverage.xml'
+              reportDirectory: '$(System.DefaultWorkingDirectory)/coverage'
+
+  - stage: Build
+    displayName: Build
+    dependsOn: Test
+    jobs:
+      - job: BuildJob
+        displayName: Build backend API
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: NodeTool@0
+            displayName: Use Node.js $(nodeVersion)
+            inputs:
+              versionSpec: '$(nodeVersion)'
+
+          - task: Cache@2
+            displayName: Cache npm
+            inputs:
+              key: 'npm | "$(Agent.OS)" | package-lock.json'
+              restoreKeys: |
+                npm | "$(Agent.OS)"
+              path: '$(Pipeline.Workspace)/.npm'
+
+          - script: |
+              npm ci --cache "$(Pipeline.Workspace)/.npm" --prefer-offline
+            displayName: Install dependencies
+
+          - script: |
+              npm run build
+            displayName: Nest build
+
