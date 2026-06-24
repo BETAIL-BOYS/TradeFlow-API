@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { InvoicesController } from './invoices.controller';
-import { PdfService } from './pdf.service';
+import { InvoicesController } from '../invoices/invoices.controller';
+import { PdfService } from '../invoices/pdf.service';
 
 @Module({
   controllers: [InvoicesController],
