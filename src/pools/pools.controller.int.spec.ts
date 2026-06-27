@@ -26,11 +26,11 @@ describe('PoolsController (integration)', () => {
       .expect(200);
 
     expect(res.body).toBeDefined();
-    expect(res.body.status).toBe('success');
-    expect(Array.isArray(res.body.data)).toBe(true);
-    expect(res.body.data).toHaveLength(7);
+    // Implementation returns raw array
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body).toHaveLength(7);
 
-    for (const item of res.body.data) {
+    for (const item of res.body) {
       expect(item).toHaveProperty('date');
       expect(item).toHaveProperty('apyPercentage');
       expect(typeof item.date).toBe('string');
@@ -39,4 +39,3 @@ describe('PoolsController (integration)', () => {
     }
   });
 });
-

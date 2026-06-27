@@ -47,6 +47,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.4",
     "compression": "^1.7.4",
+    "express": "^5.2.1",
     "ioredis": "^5.10.1",
     "jsonwebtoken": "^9.0.3",
     "lru-cache": "^11.2.7",
@@ -60,7 +61,8 @@
     "socket.io": "^4.0.0",
     "swagger-ui-express": "^5.0.0",
     "typeorm": "^0.3.28",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "ws": "^8.21.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.16",
