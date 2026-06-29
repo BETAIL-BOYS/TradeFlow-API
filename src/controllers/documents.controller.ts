@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Param, UseInterceptors, UploadedFile, Res, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Controller, Post, Get, Param, UseInterceptors, UploadedFile, Res, BadRequestException, NotFoundException, Logger } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { encryptBuffer, decryptBuffer } from '../common/utils/crypto';
@@ -7,6 +7,8 @@ import axios from 'axios';
 
 @Controller('api/v1/documents')
 export class DocumentsController {
+  private readonly logger = new Logger(DocumentsController.name);
+
   // Replace this with your actual Prisma service injection if available
   private prisma = {
     documentRegistry: {
@@ -31,20 +33,27 @@ export class DocumentsController {
     },
   }))
   async uploadDocument(@UploadedFile() file: Express.Multer.File) {
-    if (!file) throw new BadRequestException('No file uploaded.');
+    if (!file) {
+      this.logger.warn('Upload request received with no file.');
+      throw new BadRequestException('No file uploaded.');
+    }
+    this.logger.log(`Received document upload request for: ${file.originalname}`);
 
     // Encrypt raw buffer directly in system memory
     const { ciphertext, iv, authTag } = encryptBuffer(file.buffer);
+    this.logger.debug('File buffer encrypted successfully.');
 
     // Pin encrypted binary payload to Pinata API
     const formData = new FormData();
     formData.append('file', ciphertext, { filename: file.originalname });
 
+    this.logger.log(`Pinning encrypted file to IPFS via Pinata for: ${file.originalname}`);
     const ipfsRes = await axios.post('https://api.pinata.cloud/pinning/pinFileToIPFS', formData, {
       headers: { ...formData.getHeaders(), Authorization: `Bearer ${process.env.PINATA_JWT}` },
     });
 
     const cid = ipfsRes.data.IpfsHash;
+    this.logger.log(`File pinned successfully to IPFS with CID: ${cid}`);
 
     // Persist layout pointers to DB
     await this.prisma.documentRegistry.create({
@@ -56,12 +65,18 @@ export class DocumentsController {
 
   @Get(':cid')
   async getDocument(@Param('cid') cid: string, @Res() res: Response) {
+    this.logger.log(`Request received to retrieve document with CID: ${cid}`);
     const record = await this.prisma.documentRegistry.findUnique({ where: { cid } });
-    if (!record) throw new NotFoundException('Document mapping not found.');
+    if (!record) {
+      this.logger.warn(`Document record not found in database for CID: ${cid}`);
+      throw new NotFoundException('Document mapping not found.');
+    }
 
+    this.logger.log(`Fetching encrypted document from IPFS gateway for CID: ${cid}`);
     const gatewayRes = await axios.get(`https://gateway.pinata.cloud/ipfs/${cid}`, {
       responseType: 'arraybuffer',
     });
+    this.logger.debug(`Decrypting document for CID: ${cid}`);
     
     const decrypted = decryptBuffer(Buffer.from(gatewayRes.data), record.iv, record.authTag);
 

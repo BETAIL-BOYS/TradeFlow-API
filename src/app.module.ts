@@ -19,9 +19,28 @@ import { ConfigModule } from '@nestjs/config';
 import { MaintenanceMiddleware } from './common/middleware/maintenance.middleware';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 import { RedisModule } from './common/redis/redis.module';
+import { LoggerModule } from 'nestjs-pino';
 
 @Module({
   imports: [
+    LoggerModule.forRoot({
+      pinoHttp: {
+        // Enforce a flat format optimal for CloudWatch/ELK ingestion
+        formatters: {
+          level: (label) => ({ level: label }),
+        },
+        timestamp: () => `,"time":"${new Date().toISOString()}"`,
+        // Automatically pluck the correlation ID tracked by your RequestIdMiddleware
+        customProps: (req: any) => ({
+  reqId: req.headers['x-request-id'] || req.id,
+}),
+        // Format HTTP access log outputs compactly
+        serializers: {
+          req: (req) => ({ method: req.method, url: req.url }),
+          res: (res) => ({ statusCode: res.statusCode }),
+        },
+      },
+    }),
     ConfigModule.forRoot({ isGlobal: true }),
     RedisModule,
     PrismaModule, 

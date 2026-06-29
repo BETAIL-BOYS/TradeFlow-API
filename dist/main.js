@@ -5,37 +5,31 @@ const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const app_module_1 = require("./app.module");
 const indexer_1 = require("./jobs/indexer");
-const custom_logger_1 = require("./common/logger/custom.logger");
 const express_rate_limit_1 = require("express-rate-limit");
+const nestjs_pino_1 = require("nestjs-pino");
 const rate_limit_redis_1 = require("rate-limit-redis");
-const compression_1 = require("compression");
+const compression = require("compression");
 let redis = null;
 try {
     redis = require('../config/redis');
 }
 catch (_a) {
 }
-function getLogLevels(nodeEnv) {
-    switch (nodeEnv) {
-        case 'production':
-            return ['error', 'warn', 'log'];
-        case 'test':
-            return ['error'];
-        case 'development':
-        default:
-            return ['error', 'warn', 'log', 'debug', 'verbose'];
-    }
-}
 async function bootstrap() {
-    var _a, _b;
-    const nodeEnv = (_a = process.env.NODE_ENV) !== null && _a !== void 0 ? _a : 'development';
+    var _a;
+    const originalConsoleError = console.error;
+    console.error = (...args) => {
+        if (typeof args[0] === 'string' && args[0].includes('Redis Connection Error')) {
+            return;
+        }
+        originalConsoleError(...args);
+    };
     const app = await core_1.NestFactory.create(app_module_1.AppModule, {
-        logger: new custom_logger_1.CustomLogger('App', {
-            logLevels: getLogLevels(nodeEnv),
-        }),
+        bufferLogs: true,
     });
+    app.useLogger(app.get(nestjs_pino_1.Logger));
     app.getHttpAdapter().getInstance().disable('x-powered-by');
-    app.use((0, compression_1.default)());
+    app.use(compression());
     app.use((0, express_rate_limit_1.default)(Object.assign(Object.assign({ windowMs: 15 * 60 * 1000, max: 100, standardHeaders: true, legacyHeaders: false }, (redis
         ? {
             store: new rate_limit_redis_1.default({
@@ -84,10 +78,10 @@ async function bootstrap() {
         .build();
     const document = swagger_1.SwaggerModule.createDocument(app, config);
     swagger_1.SwaggerModule.setup('api', app, document);
-    const port = (_b = process.env.PORT) !== null && _b !== void 0 ? _b : 3000;
+    const port = (_a = process.env.PORT) !== null && _a !== void 0 ? _a : 3000;
     await app.listen(port);
-    console.log(`Application is running on: http://localhost:${port}`);
-    console.log(`Environment: ${nodeEnv} | Log levels: ${getLogLevels(nodeEnv).join(', ')}`);
+    const logger = app.get(nestjs_pino_1.Logger);
+    logger.log(`Application is running on: http://localhost:${port}`, 'Bootstrap');
     new indexer_1.IndexerJob();
 }
 bootstrap();
