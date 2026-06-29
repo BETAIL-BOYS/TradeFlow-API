@@ -19,7 +19,7 @@ try {
 function getLogLevels(nodeEnv: string): LogLevel[] {
   switch (nodeEnv) {
     case 'production':
-      return ['error', 'warn', 'log'];
+      return ['error', 'warn', 'log']; 
     case 'test':
       return ['error'];
     case 'development':

@@ -1,7 +1,8 @@
-import { WebSocketGateway, WebSocketServer, OnModuleInit } from '@nestjs/websockets';
+import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { RedisService } from '../common/redis/redis.service';
 import { Logger } from '@nestjs/common';
+import { OnModuleInit } from '@nestjs/common';
 
 /**
  * WebSocket Gateway for real-time trade updates.

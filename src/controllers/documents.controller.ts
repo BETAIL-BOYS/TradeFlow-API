@@ -2,6 +2,7 @@ import { Controller, Post, Get, Param, UseInterceptors, UploadedFile, Res, BadRe
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { encryptBuffer, decryptBuffer } from '../common/utils/crypto';
+import FormData from 'form-data';
 import axios from 'axios';
 
 @Controller('api/v1/documents')
@@ -37,11 +38,10 @@ export class DocumentsController {
 
     // Pin encrypted binary payload to Pinata API
     const formData = new FormData();
-    const blob = new Blob([ciphertext], { type: 'application/octet-stream' });
-    formData.append('file', blob, file.originalname);
+    formData.append('file', ciphertext, { filename: file.originalname });
 
     const ipfsRes = await axios.post('https://api.pinata.cloud/pinning/pinFileToIPFS', formData, {
-      headers: { Authorization: `Bearer ${process.env.PINATA_JWT}` },
+      headers: { ...formData.getHeaders(), Authorization: `Bearer ${process.env.PINATA_JWT}` },
     });
 
     const cid = ipfsRes.data.IpfsHash;

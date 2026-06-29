@@ -1,6 +1,7 @@
 ﻿import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { AppController } from './app.controller';
+import { DocumentsController } from './controllers/documents.controller';
 import { AppService } from './app.service';
 import { HealthModule } from './health/health.module';
 import { RiskModule } from './risk/risk.module';
@@ -35,7 +36,7 @@ import { RedisModule } from './common/redis/redis.module';
     OrdersModule,
     GasModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, DocumentsController],
   providers: [
     AppService,
     {

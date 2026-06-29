@@ -1,6 +1,6 @@
 ﻿import { Injectable, Logger } from '@nestjs/common';
 import { RedisService } from '../common/redis/redis.service';
-import { Server } from '@stellar/stellar-sdk/rpc';
+import * as StellarSdk from '@stellar/stellar-sdk';
 
 export interface FeeTiers {
   low: string;
@@ -33,14 +33,13 @@ export class GasService {
   private async fetchAndCache() {
     try {
       const rpcUrl = process.env.STELLAR_RPC_URL || 'https://soroban-testnet.stellar.org';
-      const server = new Server(rpcUrl);
-      const ledger = await server.getLatestLedger();
-      const baseFee = parseInt(ledger.baseFeeInStroops || '100', 10);
+      const server = new StellarSdk.SorobanRpc.Server(rpcUrl);
+      const feeStats = await (server as any).getFeeStats();
 
       const tiers: FeeTiers = {
-        low: Math.ceil(baseFee * 1.0).toString(),
-        medium: Math.ceil(baseFee * 1.5).toString(),
-        high: Math.ceil(baseFee * 3.0).toString(),
+        low: feeStats.sorobanInclusionFee.p10,
+        medium: feeStats.sorobanInclusionFee.p50,
+        high: feeStats.sorobanInclusionFee.p90,
         updatedAt: Date.now(),
       };
 
