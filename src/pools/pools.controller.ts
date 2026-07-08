@@ -3,6 +3,11 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApyHistoryPoint, generateMockApyHistory } from './apy-history.helper';
 import { PoolIdParamDto } from './dto/pool-id-param.dto';
 
+interface ApyHistoryResponse {
+  status: 'success';
+  data: ApyHistoryPoint[];
+}
+
 /**
  * Controller for liquidity pool information and history.
  * Provides simulated APY history and recent trade data for pools.
@@ -23,11 +28,22 @@ export class PoolsController {
   @ApiResponse({
     status: 200,
     description: 'APY history retrieved successfully',
-    type: ApyHistoryPoint,
-    isArray: true,
+    schema: {
+      type: 'object',
+      properties: {
+        status: { type: 'string', example: 'success' },
+        data: {
+          type: 'array',
+          items: { $ref: '#/components/schemas/ApyHistoryPoint' },
+        },
+      },
+    },
   })
-  getApyHistory(@Param() params: PoolIdParamDto): ApyHistoryPoint[] {
-    return generateMockApyHistory(params.poolId);
+  getApyHistory(@Param() params: PoolIdParamDto): ApyHistoryResponse {
+    return {
+      status: 'success',
+      data: generateMockApyHistory(params.poolId),
+    };
   }
 
   /**
@@ -97,4 +113,3 @@ export class PoolsController {
     };
   }
 }
-
