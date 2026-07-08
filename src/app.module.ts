@@ -18,6 +18,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MaintenanceMiddleware } from './common/middleware/maintenance.middleware';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 import { RedisModule } from './common/redis/redis.module';
+import { TransactionsModule } from './transactions/transactions.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { RedisModule } from './common/redis/redis.module';
     TokensModule, 
     OgModule,
     TradeModule,
+    TransactionsModule,
     OrdersModule,
     GasModule,
   ],
