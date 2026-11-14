@@ -5,8 +5,6 @@ node_modules/
 dist/
 
 # Environment files — never commit secrets
-.env
-.env.local
 .env.*.local
 
 # Runtime logs
@@ -20,3 +18,4 @@ logs/
 # OS artefacts
 .DS_Store
 Thumbs.db
+config.bat
